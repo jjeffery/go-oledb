@@ -4,31 +4,13 @@ import (
 	"fmt"
 )
 
-const (
-	S_OK = 0
-
-	E_NOTIMPL     = 0x80004001
-	E_NOINTERFACE = 0x80004002
-	E_POINTER     = 0x80004003
-)
-
-var (
-	mapHresultToName map[int]string
-)
-
-func init() {
-	mapHresultToName = make(map[int]string)
-	mapHresultToName[E_NOINTERFACE] = "E_NOINTERFACE"
-	mapHresultToName[E_POINTER] = "E_POINTER"
-}
-
 // ComError contains details about COM errors.
 type ComError struct {
-	hr         int
+	hr         HResult
 	methodName string
 }
 
-func newComError(hr int, methodName string) *ComError {
+func newComError(hr HResult, methodName string) *ComError {
 	return &ComError{
 		hr:         hr,
 		methodName: methodName,
@@ -36,7 +18,7 @@ func newComError(hr int, methodName string) *ComError {
 }
 
 // Code returns the COM error code
-func (e *ComError) Code() int {
+func (e *ComError) HResult() HResult {
 	return e.hr
 }
 
@@ -45,10 +27,11 @@ func (e *ComError) MethodName() string {
 	return e.methodName
 }
 
+func (e *ComError) String() string {
+	return fmt.Sprintf("%s: hr = %s", e.methodName, e.hr.String())
+}
+
 // Returns error details as a formatted string
 func (e *ComError) Error() string {
-	if name := mapHresultToName[e.hr]; name != "" {
-		return fmt.Sprintf("%s: hr = %s", e.methodName, name)
-	}
-	return fmt.Sprintf("%s: hr = 0x%08x", e.methodName, uint32(e.hr))
+	return e.String()
 }

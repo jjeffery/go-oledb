@@ -20,13 +20,15 @@ type vtblIUnknown struct {
 
 func (unk *IUnknown) QueryInterface(iid *GUID) (ptr unsafe.Pointer, err error) {
 	method := NewMethod(unsafe.Pointer(unk), unk.vtbl.queryInterface)
-	hr := method.Call2(unsafe.Pointer(iid), unsafe.Pointer(&ptr))
+	hr := method.Call2(uintptr(unsafe.Pointer(iid)), uintptr(unsafe.Pointer(&ptr)))
 
-	if hr != S_OK {
+	if hr.Failed() {
 		err = newComError(hr, "IUnknown.QueryInterface")
 	} else {
 		err = nil
 	}
+
+	return
 }
 
 // QueryUnknown returns a pointer to the base *IUnknown pointer for this
@@ -35,22 +37,23 @@ func (unk *IUnknown) QueryInterface(iid *GUID) (ptr unsafe.Pointer, err error) {
 func (unk *IUnknown) QueryIUnknown() (*IUnknown, error) {
 	if ptr, err := unk.QueryInterface(IID_IUnknown); err != nil {
 		return nil, err
+	} else {
+		return (*IUnknown)(ptr), nil
 	}
-	return *IUnknown(ptr), nil
 }
 
 func (unk *IUnknown) AddRef() {
-	method := NewMethod(uintptr(unk), unk.vtbl.addRef)
+	method := NewMethod(unsafe.Pointer(unk), unk.vtbl.addRef)
 	hr := method.Call0()
-	if hr != S_OK {
-		panic(newComError(hr, "IUnknown.AddRef").Error())
+	if hr.Failed() {
+		panic(newComError(hr, "IUnknown.AddRef").String())
 	}
 }
 
 func (unk *IUnknown) Release() {
-	method := NewMethod(unk, unk.vtbl.release)
+	method := NewMethod(unsafe.Pointer(unk), unk.vtbl.release)
 	hr := method.Call0()
-	if hr != S_OK {
-		panic(newComError(hr, "IUnknown.Release").Error())
+	if hr.Failed() {
+		panic(newComError(hr, "IUnknown.Release").String())
 	}
 }

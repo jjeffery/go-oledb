@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	IID_IDBInitialize = &GUID{0x00000000, 0x0000, 0x0000, [8]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}}
+	IID_IDBInitialize = &GUID{0x0c733a8b, 0x2a1c, 0x11ce, [8]byte{0xad, 0xe5, 0x00, 0xaa, 0x00, 0x44, 0x77, 0x3d}}
 )
 
 type IDBInitialize struct {
@@ -41,7 +41,7 @@ func (dbi *IDBInitialize) Release() {
 func (dbi *IDBInitialize) Initialize() error {
 	method := NewMethod(unsafe.Pointer(dbi), dbi.vtbl.initialize)
 	hr := method.Call0()
-	if hr != S_OK {
+	if hr.Failed() {
 		return newComError(hr, "IDBInitialize.Initialize")
 	}
 	return nil
@@ -50,7 +50,7 @@ func (dbi *IDBInitialize) Initialize() error {
 func (dbi *IDBInitialize) Uninitialize() error {
 	method := NewMethod(unsafe.Pointer(dbi), dbi.vtbl.uninitialize)
 	hr := method.Call0()
-	if hr != S_OK {
+	if hr.Failed() {
 		return newComError(hr, "IDBInitialize.Uninitialize")
 	}
 	return nil
