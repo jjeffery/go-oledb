@@ -28,7 +28,7 @@ func (e *ComError) MethodName() string {
 }
 
 func (e *ComError) String() string {
-	return fmt.Sprintf("%s: hr = %s", e.methodName, e.hr.String())
+	return fmt.Sprintf("%s: %s", e.methodName, e.hr.String())
 }
 
 // Returns error details as a formatted string
